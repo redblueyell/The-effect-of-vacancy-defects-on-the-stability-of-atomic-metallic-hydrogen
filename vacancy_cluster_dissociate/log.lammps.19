@@ -1,0 +1,215 @@
+#******************************************************************
+units           metal
+atom_style      atomic
+boundary        p p p
+
+read_data	data.$g
+read_data	data.19
+Reading data file ...
+  triclinic box = (0 0 0) to (13.4375 13.4375 12.952) with tilt (0 0 0)
+  1 by 1 by 1 MPI processor grid
+  reading atoms ...
+  2298 atoms
+  read_data CPU = 0.010 seconds
+# H deep potential
+pair_style      deepmd H.pb fparam 300.0
+Summary of lammps deepmd module ...
+  >>> Info of deepmd-kit:
+  installed to:       /work/home/acl7i3im69/soft/deepmd-kit
+  source:             
+  source branch:      HEAD
+  source commit:      c45d372
+  source commit at:   2024-07-07 08:06:13 +0000
+  support model ver.: 1.1 
+  build variant:      cuda
+  build with tf inc:  /work/home/acl7i3im69/soft/deepmd-kit/lib/python3.11/site-packages/tensorflow/include;/work/home/acl7i3im69/soft/deepmd-kit/include
+  build with tf lib:  /work/home/acl7i3im69/soft/deepmd-kit/lib/python3.11/site-packages/tensorflow/libtensorflow_cc.so.2
+  set tf intra_op_parallelism_threads: 0
+  set tf inter_op_parallelism_threads: 4
+  >>> Info of lammps module:
+  use deepmd-kit at:  /work/home/acl7i3im69/soft/deepmd-kitpair_coeff      * *
+mass            1 1.000000
+
+neighbor        1 bin
+neigh_modify    every 10 delay 0 check no
+
+compute         pe all pe/atom
+compute         ke all ke/atom
+
+thermo          1
+thermo_style    custom step pe vol density enthalpy press pxx pyy pzz pxy pxz pyz
+
+# 1. getting the potential energy of pristine crystal: E_pristine
+variable        n_min equal 5000
+reset_timestep  0
+min_style       cg
+min_modify      line quadratic
+minimize        0.0 1.0e-2 ${n_min} 10000 # etol ,ftol, max iterations, max number of force/energy evaluations
+minimize        0.0 1.0e-2 5000 10000 
+
+CITE-CITE-CITE-CITE-CITE-CITE-CITE-CITE-CITE-CITE-CITE-CITE-CITE
+
+Your simulation uses code contributions which should be cited:
+
+- USER-DEEPMD package:
+
+@article{Wang_ComputPhysCommun_2018_v228_p178,
+  author = {Wang, Han and Zhang, Linfeng and Han, Jiequn and E, Weinan},
+  doi = {10.1016/j.cpc.2018.03.016},
+  url = {https://doi.org/10.1016/j.cpc.2018.03.016},
+  year = 2018,
+  month = {jul},
+  publisher = {Elsevier {BV}},
+  volume = 228,
+  journal = {Comput. Phys. Commun.},
+  title = {{DeePMD-kit: A deep learning package for many-body potential energy representation and molecular dynamics}},
+  pages = {178--184}
+}
+@misc{Zeng_JChemPhys_2023_v159_p054801,
+  title  = {{DeePMD-kit v2: A software package for deep potential models}},
+  author =   {Jinzhe Zeng and Duo Zhang and Denghui Lu and Pinghui Mo and Zeyu Li
+         and Yixiao Chen and Mari{\'a}n Rynik and Li'ang Huang and Ziyao Li and 
+         Shaochen Shi and Yingze Wang and Haotian Ye and Ping Tuo and Jiabin
+         Yang and Ye Ding and Yifan Li and Davide Tisi and Qiyu Zeng and Han 
+         Bao and Yu Xia and Jiameng Huang and Koki Muraoka and Yibo Wang and 
+         Junhan Chang and Fengbo Yuan and Sigbj{\o}rn L{\o}land Bore and Chun
+         Cai and Yinnian Lin and Bo Wang and Jiayan Xu and Jia-Xin Zhu and 
+         Chenxing Luo and Yuzhi Zhang and Rhys E A Goodall and Wenshuo Liang
+         and Anurag Kumar Singh and Sikai Yao and Jingchao Zhang and Renata
+         Wentzcovitch and Jiequn Han and Jie Liu and Weile Jia and Darrin M
+         York and Weinan E and Roberto Car and Linfeng Zhang and Han Wang},
+  journal =  {J. Chem. Phys.},
+  volume =   159,
+  issue =    5,  
+  year =    2023,
+  pages  =   054801,
+  doi =      {10.1063/5.0155600},
+}
+
+CITE-CITE-CITE-CITE-CITE-CITE-CITE-CITE-CITE-CITE-CITE-CITE-CITE
+
+Switching to 'neigh_modify every 1 delay 0 check yes' setting during minimization
+Generated 0 of 0 mixed pair_coeff terms from geometric mixing rule
+Neighbor list info ...
+  update: every = 1 steps, delay = 0 steps, check = yes
+  max neighbors/atom: 2000, page size: 100000
+  master list distance cutoff = 7
+  ghost atom cutoff = 7
+  binsize = 3.5, bins = 4 4 4
+  1 neighbor lists, perpetual/occasional/extra = 1 0 0
+  (1) pair deepmd, perpetual
+      attributes: full, newton on
+      pair build: full/bin/atomonly
+      stencil: full/bin/3d
+      bin: standard
+Per MPI rank memory allocation (min/avg/max) = 22.53 | 22.53 | 22.53 Mbytes
+   Step         PotEng         Volume        Density        Enthalpy        Press           Pxx            Pyy            Pzz            Pxy            Pxz            Pyz      
+         0  -1056.9947      2338.6961      1.6316436      8632.879       6638266.5      6720459.3      6773044.2      6421295.9     -5217.3721     -95.57447      -3276.8604    
+         1  -1090.8089      2338.6961      1.6316436      8556.2728      6608950.9      6700041.7      6752421.8      6374389.2     -3600.225      -1901.6809     -2155.1294    
+         2  -1102.3995      2338.6961      1.6316436      8539.0269      6605076.6      6703746.6      6754927.6      6356555.4     -788.39845     -1970.9321     -1761.347     
+         3  -1110.0364      2338.6961      1.6316436      8527.9986      6602753.3      6707647        6761593.2      6339019.6      774.57365     -882.44852     -665.46301    
+         4  -1114.7922      2338.6961      1.6316436      8520.7115      6601019.2      6709084.8      6767869.4      6326103.2      1405.8319     -156.73852      686.78918    
+         5  -1117.551       2338.6961      1.6316436      8516.8103      6600236.5      6711123.1      6771453.4      6318132.9      1360.9843     -267.95727     -117.49586    
+         6  -1119.1059      2338.6961      1.6316436      8514.3502      6599616.3      6710782.5      6774382.6      6313683.9      1121.2186     -51.072691     -193.31252    
+         7  -1120.1376      2338.6961      1.6316436      8512.4535      6599023.8      6710587.6      6775675.3      6310808.5      1229.1017      470.98164     -550.16582    
+         8  -1120.8777      2338.6961      1.6316436      8511.0526      6598571.1      6710745.4      6776101.2      6308866.8      1223.6859      413.50757     -138.68897    
+         9  -1121.3105      2338.6961      1.6316436      8510.1147      6598225        6710013        6776823.7      6307838.4      1512.2128      157.01524      163.18252    
+        10  -1121.5356      2338.6961      1.6316436      8509.5171      6597969.8      6709755.4      6776856.6      6307297.4      774.02608      354.70469     -45.619563    
+        11  -1121.689       2338.6961      1.6316436      8509.0691      6597768        6709068.2      6776457.1      6307778.8      775.84399      35.175013      498.27017    
+        12  -1121.7663      2338.6961      1.6316436      8508.7369      6597593.4      6708798.7      6775890.4      6308091.2      303.50505     -163.40606      568.1373     
+        13  -1121.8065      2338.6961      1.6316436      8508.3485      6597354.8      6708688.4      6774543        6308833.1     -281.08242     -17.060984      663.1005     
+        14  -1121.9074      2338.6961      1.6316436      8507.8998      6597116.6      6708599        6772885.5      6309865.4     -521.73022      27.396855      726.32127    
+        15  -1121.9266      2338.6961      1.6316436      8507.7134      6597002        6707408.3      6772513.1      6311084.7     -431.82889     -353.95112      542.2196     
+        16  -1121.9353      2338.6961      1.6316436      8507.4447      6596823.9      6706865.7      6771767.7      6311838.3     -544.59941     -313.41019      377.43649    
+        17  -1121.9398      2338.6961      1.6316436      8507.3217      6596742.8      6706186.8      6771289.1      6312752.4     -827.82804     -562.99817      517.0247     
+        18  -1121.982       2338.6961      1.6316436      8507.0273      6596570        6705652.9      6770806.3      6313250.9     -878.75706     -595.06715      213.85374    
+        19  -1121.9863      2338.6961      1.6316436      8506.8011      6596417.9      6705178.4      6770426.3      6313649       -1295.7239     -345.90174      387.76942    
+        20  -1122.0206      2338.6961      1.6316436      8506.4502      6596201        6704895.8      6769260.9      6314446.4     -1382.3695     -437.43972      355.16116    
+        21  -1122.0235      2338.6961      1.6316436      8506.1839      6596020.6      6704507.3      6768658.7      6314895.8     -1737.9129     -613.61218      475.28645    
+        22  -1122.0237      2338.6961      1.6316436      8506.1833      6596020.3      6704506.5      6768658.6      6314895.8     -1738.0638     -613.54631      475.35471    
+        23  -1122.0623      2338.6961      1.6316436      8506.0537      6595958        6704649.4      6768539.7      6314684.9     -1391.1735     -444.30958      342.79373    
+        24  -1122.0662      2338.6961      1.6316436      8505.9192      6595868.5      6704246.5      6768249.1      6315109.8     -1505.9627     -328.41089      388.19223    
+        25  -1122.0662      2338.6961      1.6316436      8505.9192      6595868.5      6704246.5      6768249.1      6315109.8     -1505.9627     -328.41089      388.19223    
+Loop time of 3.14861 on 2 procs for 25 steps with 2298 atoms
+
+90.2% CPU use with 1 MPI tasks x 2 OpenMP threads
+
+Minimization stats:
+  Stopping criterion = linesearch alpha is zero
+  Energy initial, next-to-last, final = 
+     -1056.99467846027  -1122.06615791636  -1122.06615791636
+  Force two-norm initial, final = 37.43055 1.090895
+  Force max component initial, final = 2.006027 0.067414658
+  Final line search alpha, max atom move = 7.4505806e-09 5.0227834e-10
+  Iterations, force evaluations = 25 152
+
+MPI task timing breakdown:
+Section |  min time  |  avg time  |  max time  |%varavg| %total
+---------------------------------------------------------------
+Pair    | 3.0905     | 3.0905     | 3.0905     |   0.0 | 98.15
+Neigh   | 0          | 0          | 0          |   0.0 |  0.00
+Comm    | 0.034422   | 0.034422   | 0.034422   |   0.0 |  1.09
+Output  | 0.0066944  | 0.0066944  | 0.0066944  |   0.0 |  0.21
+Modify  | 0          | 0          | 0          |   0.0 |  0.00
+Other   |            | 0.017      |            |       |  0.54
+
+Nlocal:           2298 ave        2298 max        2298 min
+Histogram: 1 0 0 0 0 0 0 0 0 0
+Nghost:          17438 ave       17438 max       17438 min
+Histogram: 1 0 0 0 0 0 0 0 0 0
+Neighs:              0 ave           0 max           0 min
+Histogram: 1 0 0 0 0 0 0 0 0 0
+FullNghs:  3.25759e+06 ave 3.25759e+06 max 3.25759e+06 min
+Histogram: 1 0 0 0 0 0 0 0 0 0
+
+Total # of neighbors = 3257590
+Ave neighs/atom = 1417.5762
+Neighbor list builds = 0
+Dangerous builds not checked
+
+# 2. dump files of pristine structure with different alatt
+variable	my_step equal $g*1000
+variable	my_step equal 19*1000
+reset_timestep  0
+dump            1 all cfg 1 voids-relax.${my_step}.*.cfg mass type xs ys zs id c_pe
+dump            1 all cfg 1 voids-relax.19000.*.cfg mass type xs ys zs id c_pe
+dump_modify     1 element H
+run             0
+WARNING: No fixes with time integration, atoms won't move (src/verlet.cpp:60)
+Generated 0 of 0 mixed pair_coeff terms from geometric mixing rule
+Per MPI rank memory allocation (min/avg/max) = 19.67 | 19.67 | 19.67 Mbytes
+   Step         PotEng         Volume        Density        Enthalpy        Press           Pxx            Pyy            Pzz            Pxy            Pxz            Pyz      
+         0  -1122.0662      2338.6961      1.6316436      8505.9192      6595868.5      6704246.5      6768249.1      6315109.8     -1505.9627     -328.41089      388.19223    
+Loop time of 2.02e-06 on 2 procs for 0 steps with 2298 atoms
+
+198.0% CPU use with 1 MPI tasks x 2 OpenMP threads
+
+MPI task timing breakdown:
+Section |  min time  |  avg time  |  max time  |%varavg| %total
+---------------------------------------------------------------
+Pair    | 0          | 0          | 0          |   0.0 |  0.00
+Neigh   | 0          | 0          | 0          |   0.0 |  0.00
+Comm    | 0          | 0          | 0          |   0.0 |  0.00
+Output  | 0          | 0          | 0          |   0.0 |  0.00
+Modify  | 0          | 0          | 0          |   0.0 |  0.00
+Other   |            | 2.02e-06   |            |       |100.00
+
+Nlocal:           2298 ave        2298 max        2298 min
+Histogram: 1 0 0 0 0 0 0 0 0 0
+Nghost:          17440 ave       17440 max       17440 min
+Histogram: 1 0 0 0 0 0 0 0 0 0
+Neighs:              0 ave           0 max           0 min
+Histogram: 1 0 0 0 0 0 0 0 0 0
+FullNghs:  3.26407e+06 ave 3.26407e+06 max 3.26407e+06 min
+Histogram: 1 0 0 0 0 0 0 0 0 0
+
+Total # of neighbors = 3264072
+Ave neighs/atom = 1420.3969
+Neighbor list builds = 0
+Dangerous builds not checked
+shell           mv voids-relax.${my_step}.0.cfg voids-relax.${my_step}.cfg
+shell           mv voids-relax.19000.0.cfg voids-relax.${my_step}.cfg
+shell           mv voids-relax.19000.0.cfg voids-relax.19000.cfg
+undump          1
+
+quit

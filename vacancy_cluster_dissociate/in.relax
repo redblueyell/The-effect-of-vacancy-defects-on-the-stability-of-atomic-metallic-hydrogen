@@ -1,0 +1,42 @@
+# 2025.06.16 for getting formation energies of vacancy clusters in solid atomic hydrogen
+# by cgzhang@theory.issp.ac.cn
+#print "@ (1)alatt(A): ${alatt} (2)p_pristine(GPa): ${p_pristine} (3)p_voids(GPa): ${p_voids} (4)size_voids: ${size_voids} (5) E_cohensive(eV): ${E_cohensive} (6)formation_energy(eV): ${formation_energy}"
+
+log		log.lammps.${g}
+#******************************************************************
+units           metal
+atom_style      atomic
+boundary        p p p
+
+read_data	data.$g
+# H deep potential
+pair_style      deepmd H.pb fparam 300.0
+pair_coeff      * *
+mass            1 1.000000
+
+neighbor        1 bin
+neigh_modify    every 10 delay 0 check no
+
+compute         pe all pe/atom
+compute         ke all ke/atom
+
+thermo          1
+thermo_style    custom step pe vol density enthalpy press pxx pyy pzz pxy pxz pyz
+
+# 1. getting the potential energy of pristine crystal: E_pristine
+variable        n_min equal 5000
+reset_timestep  0
+min_style       cg
+min_modify      line quadratic
+minimize        0.0 1.0e-2 ${n_min} 10000 # etol ,ftol, max iterations, max number of force/energy evaluations
+
+# 2. dump files of pristine structure with different alatt
+variable	my_step equal $g*1000
+reset_timestep  0
+dump            1 all cfg 1 voids-relax.${my_step}.*.cfg mass type xs ys zs id c_pe
+dump_modify     1 element H
+run             0
+shell           mv voids-relax.${my_step}.0.cfg voids-relax.${my_step}.cfg
+undump          1
+
+quit

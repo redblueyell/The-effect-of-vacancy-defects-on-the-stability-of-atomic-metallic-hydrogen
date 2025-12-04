@@ -1,0 +1,9 @@
+LAMMPS (2 Aug 2023)
+  using 2 OpenMP thread(s) per MPI task
+Loaded 1 plugins from /work/home/acl7i3im69/soft/deepmd-kit/lib/deepmd_lmp
+# 2025.06.16 for getting formation energies of vacancy clusters in solid atomic hydrogen
+# by cgzhang@theory.issp.ac.cn
+#print "@ (1)alatt(A): ${alatt} (2)p_pristine(GPa): ${p_pristine} (3)p_voids(GPa): ${p_voids} (4)size_voids: ${size_voids} (5) E_cohensive(eV): ${E_cohensive} (6)formation_energy(eV): ${formation_energy}"
+
+log		log.lammps.${g}
+log		log.lammps.199

@@ -1,0 +1,100 @@
+BEGIN {
+# only zhengjiao right
+nn1=0;
+b011=0.0;
+b012=0.0;
+b013=0.0;
+
+b021=0.0;
+b022=0.0;
+b023=0.0;
+
+b031=0.0;
+b032=0.0;
+b033=0.0;
+itcum=0;
+line_begin=0;
+icount=0;
+for(i=0;i<10000;i++)
+{
+x[i]=0.0;
+y[i]=0.0;
+z[i]=0.0;
+}
+}
+{
+if (NR==1) 
+{
+nn1=$5;
+}
+else if (NR==3) 
+{ 
+b011=$3;
+}
+else if (NR==4) 
+{ 
+b012=$3;
+}
+else if (NR==5) 
+{
+b013=$3;
+}
+else if (NR==6) 
+{
+b021=$3;
+}
+else if (NR==7) 
+{ 
+b022=$3;
+}
+else if (NR==8) 
+{
+b023=$3;
+}
+else if (NR==9)  
+{ 
+b031=$3;
+}
+else if (NR==10) 
+{
+b032=$3;
+}
+else if (NR==11) 
+{ 
+b033=$3;
+}
+else if (NR==13) 
+{ 
+itcum=$3; 
+line_begin=13+itcum-3; 
+}
+else if (NR>line_begin)
+if ((NR-line_begin)%3==0) 
+{
+id=$4;
+x[id]=$1*b011;
+y[id]=$2*b022;
+z[id]=$3*b033;
+}
+}
+
+END {
+print "data.lammps (converted from cfg to data.lammps)";
+print "    ";
+print nn1," atoms";
+print "1  atom types";
+print "0.0  ", b011, " xlo xhi";
+print "0.0  ", b022, " ylo yhi";
+print "0.0  ", b033, " zlo zhi";
+print "0.0  0.0 0.0 xy xz yz";
+print "    ";
+print "    ";
+print "    ";
+print "Atoms";
+print "  ";
+itype=1;
+for(i=1;i<=nn1;i++)
+{
+print  i, itype,  x[i], y[i], z[i];
+}
+}

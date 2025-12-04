@@ -1,0 +1,25 @@
+LAMMPS (2 Aug 2023)
+  using 2 OpenMP thread(s) per MPI task
+Loaded 1 plugins from /work/home/acl7i3im69/soft/deepmd-kit/lib/deepmd_lmp
+# 2025.06.16 for runing nvt vacancy clusters in solid atomic hydrogen
+# by cgzhang@theory.issp.ac.cn
+
+# c_vs_a not change
+variable        alatt_ori equal 1.882    # unit: A
+variable        clatt_ori equal 5.442    # unit: A
+variable	c_vs_a equal ${clatt_ori}/${alatt_ori}
+variable	c_vs_a equal 5.442/${alatt_ori}
+variable	c_vs_a equal 5.442/1.882
+
+variable	blatt equal ${alatt} # unit: A
+variable	blatt equal 1.11979 
+variable	clatt equal ${alatt}*${c_vs_a} # unit: A
+variable	clatt equal 1.11979*${c_vs_a} 
+variable	clatt equal 1.11979*2.89160467587673 
+
+variable        nbx equal 3
+variable        nby equal 3
+variable        nbz equal 1
+
+log		log.lammps.${alatt}
+log		log.lammps.1.11979

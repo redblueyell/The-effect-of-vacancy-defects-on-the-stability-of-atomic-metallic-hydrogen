@@ -1,0 +1,126 @@
+# 2025.06.16 for runing nvt vacancy clusters in solid atomic hydrogen
+# by cgzhang@theory.issp.ac.cn
+
+# c_vs_a not change
+variable        alatt_ori equal 1.882    # unit: A
+variable        clatt_ori equal 5.442    # unit: A
+variable	c_vs_a equal ${clatt_ori}/${alatt_ori}
+
+variable	blatt equal ${alatt} # unit: A
+variable	clatt equal ${alatt}*${c_vs_a} # unit: A
+
+variable        nbx equal 6
+variable        nby equal 6
+variable        nbz equal 2
+
+log		log.lammps.${alatt}
+#******************************************************************
+units           metal
+atom_style      atomic
+boundary        p p p
+
+lattice         custom ${alatt} a1 1.0 0.0 0.0 a2 0.0 1.0 0.0 a3 0.0 0.0 ${c_vs_a} &
+                basis 0.0000000000000000  0.0000000000000000  0.5000000000000000 &
+                basis 0.5000000000000000  0.5000000000000000  0.0000000000000000 &
+                basis 0.0000000000000000  0.5000000000000000  0.7500000000000000 &
+                basis 0.5000000000000000  0.0000000000000000  0.2500000000000000
+
+region          R_box prism -${nbx} ${nbx} -${nby} ${nby} -${nbz} ${nbz} 0 0 0
+create_box      1 R_box
+create_atoms    1 box basis 1 1 &
+                      basis 2 1 &
+                      basis 3 1 &
+                      basis 4 1
+# H deep potential
+pair_style      deepmd H.pb fparam $T
+pair_coeff      * *
+mass            1 1.000000
+
+neighbor        1 bin
+neigh_modify    every 10 delay 0 check no
+
+compute         pe all pe/atom
+compute         ke all ke/atom
+
+thermo          100
+thermo_style    custom step pe vol density enthalpy press pxx pyy pzz pxy pxz pyz
+
+# 1. dump files of pristine structure with different alatt
+reset_timestep  0
+dump            1 all cfg 1 bulk.*.cfg mass type xs ys zs id c_pe
+dump_modify     1 element H
+run             0
+shell           mv bulk.0.cfg bulk.cfg
+undump          1
+
+# 2. create voids
+# ---change this part --- begin----
+variable        radius equal 0.01 # unit : A
+variable        x1 equal 0.0
+variable        y1 equal 0.0
+variable        z1 equal 0.5
+region          bRR1 sphere ${x1} ${y1} ${z1} ${radius} units lattice
+
+variable        x2 equal 0.0
+variable        y2 equal 0.5
+variable        z2 equal 0.75
+region          bRR2 sphere ${x2} ${y2} ${z2} ${radius} units lattice
+
+variable        x3 equal 0.5
+variable        y3 equal 0.0
+variable        z3 equal 0.25
+region          bRR3 sphere ${x3} ${y3} ${z3} ${radius} units lattice
+
+variable        x4 equal 0.0
+variable        y4 equal -0.5
+variable        z4 equal 0.75
+region          bRR4 sphere ${x4} ${y4} ${z4} ${radius} units lattice
+
+variable        x5 equal -0.5
+variable        y5 equal 0.0
+variable        z5 equal 0.25
+region          bRR5 sphere ${x5} ${y5} ${z5} ${radius} units lattice
+
+variable        x6 equal 0.0
+variable        y6 equal 1.0
+variable        z6 equal 0.5
+region          bRR6 sphere ${x6} ${y6} ${z6} ${radius} units lattice
+
+region          bRR union 6 bRR1 bRR2 bRR3 bRR4 bRR5 bRR6
+variable        bNN equal count(all,bRR)
+variable        bNN equal ${bNN}
+
+delete_atoms    region bRR
+region          bRR1 delete
+region          bRR2 delete
+region          bRR3 delete
+region          bRR4 delete
+region          bRR5 delete
+region          bRR6 delete
+
+region          bRR delete
+print           "delete atoms=${bNN}"
+# ---change this part --- end ----
+# 3. run nvt
+variable        dt equal 0.0002   # fs
+variable        tdamp equal 100*${dt}
+timestep        ${dt}
+velocity        all create $T ${iseed} dist gaussian rot yes
+fix             1 all nvt temp $T $T ${tdamp}
+
+variable        DUMP_STEP equal 1000
+variable        runtime equal 40 # unit: ps
+variable        nsteps equal ${runtime}/${dt}
+
+reset_timestep  0
+dump            1 all cfg ${DUMP_STEP} voids.*.cfg mass type xs ys zs id c_pe
+dump_modify     1 element H
+#dump            1 all custom ${DUMP_STEP} voids.xyz id type xs ys zs id c_pe
+#dump_modify     1 element H
+
+run             ${nsteps}
+
+undump          1
+unfix           1
+
+quit
